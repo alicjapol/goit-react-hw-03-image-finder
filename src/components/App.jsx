@@ -89,7 +89,7 @@ export function App() {
   };
 
   return (
-    <div>
+<div>
       <AppWrapper>
         <SearchbarWrapper>
           <Searchbar onSubmit={handleInputChange} />
