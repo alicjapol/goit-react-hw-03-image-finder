@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
-
 import Button from './Button/Button';
 import Loader from './Loader/Loader';
 import Modal from './Modal/Modal';
@@ -14,6 +13,7 @@ const AppWrapper = styled.div`
   grid-gap: 16px;
   padding-bottom: 24px;
 `;
+
 const SearchbarWrapper = styled.div`
   top: 0;
   left: 0;
@@ -44,17 +44,11 @@ export function App() {
 
   const newUrl = `https://pixabay.com/api/?q=${searchTerm}&page=${currentPage}&key=${apiKey}&image_type=photo&orientation=horizontal&per_page=12`;
 
-  useEffect(() => {
-    if (searchTerm) {
-      fetchPics();
-    }
-  }, [searchTerm, currentPage]);
-
   const fetchPics = async () => {
     setIsLoading(true);
     try {
       const res = await axios.get(newUrl);
-      setImages([...images, ...res.data.hits]);
+      setImages(prevImages => [...prevImages, ...res.data.hits]);
       console.log(res);
     } catch (error) {
       console.error('Error fetching images:', error);
@@ -82,7 +76,13 @@ export function App() {
     return () => {
       document.removeEventListener('keydown', eventListener);
     };
-  }, [selectedImage]);
+  }, [selectedImage, eventListener]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      fetchPics();
+    }
+  }, [searchTerm, currentPage, fetchPics]);
 
   const loadMore = () => {
     setCurrentPage(prevPage => prevPage + 1);
