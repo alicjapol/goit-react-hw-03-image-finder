@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
-import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
+
 import Button from './Button/Button';
 import Loader from './Loader/Loader';
 import Modal from './Modal/Modal';
 import styled from 'styled-components';
-import css from '../../src/index';
 
 const AppWrapper = styled.div`
   display: grid;
@@ -33,18 +32,6 @@ const SearchbarWrapper = styled.div`
   box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2),
     0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
 `;
-const ImageGalleryWrapper = styled.div`
-  display: grid;
-  max-width: calc(100vw - 48px);
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  grid-gap: 16px;
-  margin-top: 0;
-  margin-bottom: 0;
-  padding: 0;
-  list-style: none;
-  margin-left: auto;
-  margin-right: auto;
-`;
 
 const apiKey = '41180761-f0899a94a2e54aea5b2403dd8';
 
@@ -57,10 +44,17 @@ export function App() {
 
   const newUrl = `https://pixabay.com/api/?q=${searchTerm}&page=${currentPage}&key=${apiKey}&image_type=photo&orientation=horizontal&per_page=12`;
 
+  useEffect(() => {
+    if (searchTerm) {
+      fetchPics();
+    }
+  }, [searchTerm, currentPage]);
+
   const fetchPics = async () => {
     try {
       const res = await axios.get(newUrl);
       setImages([...images, ...res.data.hits]);
+      console.log(res);
     } catch (error) {
       console.error('Error fetching images:', error);
     }
@@ -72,9 +66,26 @@ export function App() {
     setImages([]);
   };
 
+  const eventListener = function (event) {
+    const key = event.key; // const {key} = event; in ES6+
+    if (key === 'Escape') {
+      closeModal(event);
+    }
+  };
+
   useEffect(() => {
     fetchPics();
   }, [searchTerm, currentPage]);
+
+  useEffect(e => {
+    document.addEventListener('keydown', eventListener);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      document.removeEventListener('keydown', eventListener);
+    };
+  }, []);
 
   const loadMore = () => {
     setCurrentPage(prevPage => prevPage + 1);
@@ -82,24 +93,30 @@ export function App() {
 
   const openModal = imageURL => {
     setSelectedImage(imageURL);
+    console.log(imageURL);
   };
 
-  const closeModal = () => {
-    setSelectedImage(null);
+  const closeModal = e => {
+    if (e.target.tagName !== 'IMG') {
+      setSelectedImage(null);
+    }
   };
 
   return (
-<div>
+    <div>
       <AppWrapper>
         <SearchbarWrapper>
-          <Searchbar onSubmit={handleInputChange} />
+          <Searchbar onSubmit={handleInputChange} value={searchTerm} />
         </SearchbarWrapper>
-        <ImageGalleryWrapper>
-          <ImageGallery images={images} onImageClick={openModal} />
-        </ImageGalleryWrapper>
-        {isLoading && <Loader />}
-        {images.length > 0 && !isLoading && (
-          <Button onClick={loadMore}>Load More</Button>
+        {searchTerm && (
+          <>
+            <ImageGallery images={images} onClick={openModal} />
+            {isLoading ? (
+              <Loader />
+            ) : (
+              <Button onClick={loadMore}>Load More</Button>
+            )}
+          </>
         )}
         {selectedImage && (
           <Modal imageURL={selectedImage} onClose={closeModal} />

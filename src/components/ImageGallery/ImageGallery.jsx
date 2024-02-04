@@ -2,22 +2,24 @@ import React from 'react';
 import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 import styled from 'styled-components';
 
-const ImageGalleryItemWrapper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  gap: 16px;
-  padding-bottom: 24px;
+const ImageGalleryWrapper = styled.ul`
+  display: grid;
+  max-width: calc(100vw - 48px);
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-gap: 16px;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0;
+  list-style: none;
+  margin-left: auto;
+  margin-right: auto;
 `;
-
-const ImageGallery = ({ images }) => {
+export default function ImageGallery({ images, onClick }) {
   return (
-    <ImageGalleryItemWrapper>
+    <ImageGalleryWrapper>
       {images.map(image => (
-        <ImageGalleryItem key={image.id} image={image} />
+        <ImageGalleryItem key={image.id} image={image} onClick={onClick} />
       ))}
-    </ImageGalleryItemWrapper>
+    </ImageGalleryWrapper>
   );
-};
-
-export default ImageGallery;
+}
