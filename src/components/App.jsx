@@ -48,6 +48,7 @@ export function App() {
     if (searchTerm) {
       fetchPics();
     }
+    // eslint-disable-next-line
   }, [searchTerm, currentPage]);
 
   const fetchPics = async () => {
@@ -82,6 +83,7 @@ export function App() {
     return () => {
       document.removeEventListener('keydown', eventListener);
     };
+    // eslint-disable-next-line
   }, [selectedImage]);
 
   const loadMore = () => {
