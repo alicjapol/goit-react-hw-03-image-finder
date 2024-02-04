@@ -51,12 +51,15 @@ export function App() {
   }, [searchTerm, currentPage]);
 
   const fetchPics = async () => {
+    setIsLoading(true);
     try {
       const res = await axios.get(newUrl);
       setImages([...images, ...res.data.hits]);
       console.log(res);
     } catch (error) {
       console.error('Error fetching images:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -67,25 +70,19 @@ export function App() {
   };
 
   const eventListener = function (event) {
-    const key = event.key; // const {key} = event; in ES6+
+    const key = event.key;
     if (key === 'Escape') {
-      closeModal(event);
+      closeModal();
     }
   };
 
   useEffect(() => {
-    fetchPics();
-  }, [searchTerm, currentPage]);
-
-  useEffect(e => {
     document.addEventListener('keydown', eventListener);
-  }, []);
 
-  useEffect(() => {
     return () => {
       document.removeEventListener('keydown', eventListener);
     };
-  }, []);
+  }, [selectedImage]);
 
   const loadMore = () => {
     setCurrentPage(prevPage => prevPage + 1);
@@ -96,10 +93,8 @@ export function App() {
     console.log(imageURL);
   };
 
-  const closeModal = e => {
-    if (e.target.tagName !== 'IMG') {
-      setSelectedImage(null);
-    }
+  const closeModal = () => {
+    setSelectedImage(null);
   };
 
   return (
